@@ -1,26 +1,58 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/*
+ * Mission-control palette: deep night-side navy for chrome so the Mars
+ * surface is the only warm, saturated thing on screen. Semantic colours are
+ * reserved for route state (cyan), caution (amber), hazard (red) and the
+ * start / destination markers.
+ */
+@theme {
+  --color-space: #0a1020;
+  --color-panel: #0e1628;
+  --color-raised: #142038;
+  --color-line: #1f2d47;
+  --color-line-strong: #2d3f60;
+  --color-ink: #dbe3ee;
+  --color-muted: #8b98ae;
+  --color-faint: #5a6780;
+  --color-route: #5ec8e6;
+  --color-ochre: #d08a55;
+  --color-caution: #e8aa3c;
+  --color-hazard: #e6564a;
+  --color-go: #4fc88f;
+  --color-stop: #f0605a;
+
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-condensed: "IBM Plex Sans Condensed", "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body {
+  background: var(--color-space);
+  color: var(--color-ink);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  font-feature-settings: "tnum" 1;
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-route);
+  outline-offset: 2px;
+}
+
+.panel-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-line-strong) transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
 }
