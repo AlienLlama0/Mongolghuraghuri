@@ -56,3 +56,11 @@ body {
     animation-duration: 0.01ms !important;
   }
 }
+
+.mars-crosshair {
+  cursor: crosshair !important;
+}
+
+.mars-grab {
+  cursor: grab !important;
+}

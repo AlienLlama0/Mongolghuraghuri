@@ -1,10 +1,12 @@
 "use client";
+
 import { createLucideIcon } from "./MapIcon";
-import { useMapEvents, MapContainer, TileLayer, Marker } from "react-leaflet";
+import { useMapEvents, MapContainer, TileLayer, Marker, useMap} from "react-leaflet";
 import { LatLngTuple } from "leaflet";
+import { MapProps } from "./MarsMapLoader";
 import "leaflet/dist/leaflet.css";
-import { useState } from "react";
-import { Pin } from "lucide";
+import { useState, useEffect } from "react";
+import { Crosshair, Pin } from "lucide";
 
 function MapMoveHandler() {
   useMapEvents({
@@ -30,9 +32,40 @@ function MapClickHandler({onClick}:{onClick:(p:LatLngTuple) => void}) {
   return null;
 }
 
-export default function MarsMap() {
-  const [position, setPosition] = useState<LatLngTuple | null>(null);
-  const pinIcon = createLucideIcon('#3b82f6'); 
+function MapCursor({ mode }: { mode: MapProps["mode"] }) {
+  const map = useMap();
+
+  useEffect(() => {
+    const container = map.getContainer();
+
+    container.style.setProperty(
+      "cursor",
+      mode !== "pan" ? "crosshair" : "grab",
+      "important"
+    );
+  }, [map, mode]);
+
+  return null;
+}
+
+function DragCursorHandler({ mode }: { mode: MapProps["mode"] }) {
+  useMapEvents({
+    dragstart: (e) => {
+      e.target.getContainer().style.cursor = 'grabbing';
+    },
+    dragend: (e) => {
+      e.target.getContainer().style.cursor = mode !== "pan" ? "crosshair" : "grab";
+    },
+  });
+  return null;
+}
+
+
+export default function MarsMap({onClick, startPosition, destinationPosition, mode}:MapProps) {
+  console.log("MarsMap:", mode);
+
+  const startIcon = createLucideIcon(); 
+  const destinationIcon = createLucideIcon(false);
 
   return (
     <MapContainer
@@ -43,16 +76,23 @@ export default function MarsMap() {
         width: "100%",
       }}
     >
+      <MapCursor mode={mode}/>
+      <DragCursorHandler mode={mode} />
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
       {
-        position ? <Marker position={position} icon={pinIcon}></Marker> : <div></div>
+        startPosition ? <Marker position={startPosition} icon={startIcon}></Marker> : <div></div>
       }
-      
-      <MapClickHandler 
-        onClick={setPosition}
-      />
+      {
+        destinationPosition ? <Marker position={destinationPosition} icon={destinationIcon}></Marker> : <div></div>
+      }
+      {
+        mode !== "pan" && (      <MapClickHandler 
+        onClick={onClick}
+      />)
+      }
+
     </MapContainer>
   );
 }
