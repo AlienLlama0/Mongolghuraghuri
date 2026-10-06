@@ -26,7 +26,7 @@ export default function MissionPlanner(){
         <div className="flex min-h-dvh flex-col lg:h-dvh">
             <Header />
             <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
-                <Sidebar />
+                <Sidebar side="left" />
                 <main className="order-1 flex h-[68vh] min-h-95 flex-col lg:order-2 lg:h-auto lg:min-h-0 lg:flex-1">
                     <RouteControls 
                         mode={mode}
@@ -42,6 +42,8 @@ export default function MissionPlanner(){
                         onClick={placePoint}
                     />
                 </main>
+
+                <Sidebar side="right" />
             </div>
         </div>
     )
