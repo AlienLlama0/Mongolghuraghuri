@@ -8,22 +8,14 @@ import "leaflet/dist/leaflet.css";
 import { useState, useEffect } from "react";
 import { Crosshair, Pin } from "lucide";
 
-const MarsCRS = L.extend({}, L.CRS.Simple, {
-  projection: L.Projection.LonLat,
-
-  transformation: new L.Transformation(
-    1 / 360,
-    0.5,
-    -1 / 360,
-    0.25
-  ),
-
-  scale(zoom: number) {
-    return 512 * Math.pow(2, zoom);
-  },
-
-  infinite: false,
+const MarsEquirectangular = L.extend({}, L.CRS.EPSG4326, {
+  code: "ESRI:104905",
 });
+
+const marsBounds = L.latLngBounds(
+  [-90, -180],
+  [90, 180]
+);
 
 function MapMoveHandler() {
   useMapEvents({
@@ -36,20 +28,20 @@ function MapMoveHandler() {
   return null;
 }
 
+function normalizeLongitude(lon: number): number {
+  return ((lon + 180) % 360 + 360) % 360 - 180;
+}
 
 function MapClickHandler({onClick}:{onClick:(p:LatLngTuple) => void}) {
   useMapEvents({
     click(event) {
-      const marsLongitude =
-      event.latlng.lng < 0
-      ? event.latlng.lng + 360
-      : event.latlng.lng;
-      
-      console.log("Latitude:", event.latlng.lat);
-      console.log("Longitude:", marsLongitude);
+      const map = event.target;
+      console.log("zoom:", map.getZoom());
+      console.log("scale:", MarsEquirectangular.scale(map.getZoom()));
+      console.log("CRS:", MarsEquirectangular);
       onClick([
         event.latlng.lat,
-        marsLongitude,
+        event.latlng.lng,
       ]);
     },
   });
@@ -100,7 +92,9 @@ export default function MarsMap({onClick, startPosition, destinationPosition, mo
         height: "600px",
         width: "100%",
       }}
-      crs={MarsCRS}
+      crs={MarsEquirectangular}
+      maxBounds={marsBounds}
+      maxBoundsViscosity={1.0}
     >
       <MapCursor mode={mode}/>
       <DragCursorHandler mode={mode} />
