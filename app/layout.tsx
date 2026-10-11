@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Mars Ghuraghuri | Interplanetary Survival Guide",
+  title: "Mongol Ghuraghuri | Interplanetary Survival Guide",
   description:
     "Prototype Martian map that layers terrain, imagery and science targets for Mars walk route planning. NASA Space Apps Challenge 2026.",
 };

@@ -17,6 +17,7 @@ const marsBounds = L.latLngBounds(
   [90, 180]
 );
 
+
 function MapMoveHandler() {
   useMapEvents({
     mousemove(event) {
@@ -35,10 +36,22 @@ function normalizeLongitude(lon: number): number {
 function MapClickHandler({onClick}:{onClick:(p:LatLngTuple) => void}) {
   useMapEvents({
     click(event) {
-      const map = event.target;
-      console.log("zoom:", map.getZoom());
-      console.log("scale:", MarsEquirectangular.scale(map.getZoom()));
-      console.log("CRS:", MarsEquirectangular);
+      let lat = event.latlng.lat;
+      let lng = event.latlng.lng;
+      console.log("Lat", lat);
+      console.log("Long", lng);
+
+      if(lat < -90 || lat > 90){
+        console.log("Invalid Latitude");
+        return;
+      }
+
+
+      if(lng < -180 || lng > 180){
+        console.log("Invalid Longitude");
+        return;
+      }
+
       onClick([
         event.latlng.lat,
         event.latlng.lng,
@@ -77,7 +90,6 @@ function DragCursorHandler({ mode }: { mode: MapProps["mode"] }) {
   return null;
 }
 
-
 export default function MarsMap({onClick, startPosition, destinationPosition, mode}:MapProps) {
   console.log("MarsMap:", mode);
 
@@ -88,6 +100,8 @@ export default function MarsMap({onClick, startPosition, destinationPosition, mo
     <MapContainer
       center={[0, 0]}
       zoom={2}
+      minZoom={1}
+      maxZoom={7}
       style={{
         height: "600px",
         width: "100%",
