@@ -22,6 +22,11 @@ export default function MissionPlanner(){
     },
     [mode],
   );
+
+  const reset = () => {
+    setStart(null);
+    setdestination(null);
+    }
     return(
         <div className="flex min-h-dvh flex-col lg:h-dvh">
             <Header />
@@ -33,6 +38,7 @@ export default function MissionPlanner(){
                         hasStart={!!start}
                         hasDestination={!!destination}
                         hasRoute={false}
+                        reset={reset}
                         onClick={setMode}
                     />
                     <MarsMapLoader
