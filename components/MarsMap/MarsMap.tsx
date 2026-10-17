@@ -1,7 +1,7 @@
 "use client";
 import L from "leaflet";
 import { createLucideIcon } from "./MapIcon";
-import { useMapEvents, MapContainer, TileLayer, Marker, useMap} from "react-leaflet";
+import { useMapEvents, MapContainer, TileLayer, Marker, useMap, Polyline} from "react-leaflet";
 import { LatLngTuple } from "leaflet";
 import { MapProps } from "./MarsMapLoader";
 import "leaflet/dist/leaflet.css";
@@ -128,6 +128,16 @@ export default function MarsMap({onClick, startPosition, destinationPosition, mo
         onClick={onClick}
       />)
       }
+
+      {startPosition && destinationPosition && (
+        <Polyline
+          positions={[startPosition, destinationPosition]}
+          pathOptions={{
+            color: "#38bdf8",
+            weight: 4,
+          }}
+        />
+      )}
 
     </MapContainer>
   );
