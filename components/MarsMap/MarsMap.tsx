@@ -17,12 +17,10 @@ const marsBounds = L.latLngBounds(
   [90, 180]
 );
 
-
-function MapMoveHandler() {
+function MapMoveHandler({ onPointerMove }: { onPointerMove: (lat: number, lng: number) => void }) {
   useMapEvents({
     mousemove(event) {
-      console.log("Latitude:", event.latlng.lat);
-      console.log("Longitude:", event.latlng.lng);
+      onPointerMove(event.latlng.lat, event.latlng.lng);
     },
   });
 
@@ -45,7 +43,6 @@ function MapClickHandler({onClick}:{onClick:(p:LatLngTuple) => void}) {
         console.log("Invalid Latitude");
         return;
       }
-
 
       if(lng < -180 || lng > 180){
         console.log("Invalid Longitude");
@@ -91,54 +88,63 @@ function DragCursorHandler({ mode }: { mode: MapProps["mode"] }) {
 }
 
 export default function MarsMap({onClick, startPosition, destinationPosition, mode}:MapProps) {
-  console.log("MarsMap:", mode);
+  const [currentCoords, setCurrentCoords] = useState<{ lat: number; lng: number } | null>(null);
 
   const startIcon = createLucideIcon(); 
   const destinationIcon = createLucideIcon(false);
 
   return (
-    <MapContainer
-      center={[0, 0]}
-      zoom={2}
-      minZoom={1}
-      maxZoom={7}
-      style={{
-        height: "600px",
-        width: "100%",
-      }}
-      crs={MarsEquirectangular}
-      maxBounds={marsBounds}
-      maxBoundsViscosity={1.0}
-    >
-      <MapCursor mode={mode}/>
-      <DragCursorHandler mode={mode} />
-      <TileLayer
-        url="https://trek.nasa.gov/tiles/Mars/EQ/Mars_MGS_MOLA_ClrShade_merge_global_463m/1.0.0/default/default028mm/{z}/{y}/{x}.jpg"
-        noWrap={true}
-        
-      />
-      {
-        startPosition ? <Marker position={startPosition} icon={startIcon}></Marker> : <div></div>
-      }
-      {
-        destinationPosition ? <Marker position={destinationPosition} icon={destinationIcon}></Marker> : <div></div>
-      }
-      {
-        mode !== "pan" && (      <MapClickHandler 
-        onClick={onClick}
-      />)
-      }
-
-      {startPosition && destinationPosition && (
-        <Polyline
-          positions={[startPosition, destinationPosition]}
-          pathOptions={{
-            color: "#38bdf8",
-            weight: 4,
-          }}
+    <div className="relative w-full h-[600px]">
+      <MapContainer
+        center={[0, 0]}
+        zoom={2}
+        minZoom={1}
+        maxZoom={7}
+        style={{
+          height: "100%",
+          width: "100%",
+        }}
+        crs={MarsEquirectangular}
+        maxBounds={marsBounds}
+        maxBoundsViscosity={1.0}
+      >
+        <MapCursor mode={mode}/>
+        <DragCursorHandler mode={mode} />
+        <MapMoveHandler onPointerMove={(lat, lng) => setCurrentCoords({ lat, lng })} />
+        <TileLayer
+          url="https://trek.nasa.gov/tiles/Mars/EQ/Mars_MGS_MOLA_ClrShade_merge_global_463m/1.0.0/default/default028mm/{z}/{y}/{x}.jpg"
+          noWrap={true}
         />
-      )}
+        {
+          startPosition ? <Marker position={startPosition} icon={startIcon}></Marker> : <div></div>
+        }
+        {
+          destinationPosition ? <Marker position={destinationPosition} icon={destinationIcon}></Marker> : <div></div>
+        }
+        {
+          mode !== "pan" && (<MapClickHandler onClick={onClick}/>)
+        }
 
-    </MapContainer>
+        {startPosition && destinationPosition && (
+          <Polyline
+            positions={[startPosition, destinationPosition]}
+            pathOptions={{
+              color: "#38bdf8",
+              weight: 4,
+            }}
+          />
+        )}
+      </MapContainer>
+
+      <div className="absolute bottom-3 right-3 z-[1000] rounded bg-slate-900/80 px-3 py-1.5 font-mono text-xs text-white backdrop-blur border border-slate-700 pointer-events-none shadow-lg">
+        {currentCoords ? (
+          <span>
+            Lat: {currentCoords.lat.toFixed(4)}° | Lng: {currentCoords.lng.toFixed(4)}°
+          </span>
+        ) : (
+          <span>Lat: — | Lng: —</span>
+        )}
+      </div>
+    </div>
   );
 }
