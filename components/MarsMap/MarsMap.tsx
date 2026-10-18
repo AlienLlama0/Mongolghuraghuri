@@ -6,7 +6,8 @@ import { LatLngTuple } from "leaflet";
 import { MapProps } from "./MarsMapLoader";
 import "leaflet/dist/leaflet.css";
 import { useState, useEffect } from "react";
-import { Crosshair, Pin } from "lucide";
+
+import { useErrorToast } from "../ErrorMessage";
 
 const MarsEquirectangular = L.extend({}, L.CRS.EPSG4326, {
   code: "ESRI:104905",
@@ -21,38 +22,6 @@ function MapMoveHandler({ onPointerMove }: { onPointerMove: (lat: number, lng: n
   useMapEvents({
     mousemove(event) {
       onPointerMove(event.latlng.lat, event.latlng.lng);
-    },
-  });
-
-  return null;
-}
-
-function normalizeLongitude(lon: number): number {
-  return ((lon + 180) % 360 + 360) % 360 - 180;
-}
-
-function MapClickHandler({onClick}:{onClick:(p:LatLngTuple) => void}) {
-  useMapEvents({
-    click(event) {
-      let lat = event.latlng.lat;
-      let lng = event.latlng.lng;
-      console.log("Lat", lat);
-      console.log("Long", lng);
-
-      if(lat < -90 || lat > 90){
-        console.log("Invalid Latitude");
-        return;
-      }
-
-      if(lng < -180 || lng > 180){
-        console.log("Invalid Longitude");
-        return;
-      }
-
-      onClick([
-        event.latlng.lat,
-        event.latlng.lng,
-      ]);
     },
   });
 
@@ -92,6 +61,31 @@ export default function MarsMap({onClick, startPosition, destinationPosition, mo
 
   const startIcon = createLucideIcon(); 
   const destinationIcon = createLucideIcon(false);
+
+  const {showError} = useErrorToast();
+
+  function MapClickHandler({onClick}:{onClick:(p:LatLngTuple) => void}) {
+    useMapEvents({
+      click(event) {
+        let lat = event.latlng.lat;
+        let lng = event.latlng.lng;
+        console.log("Lat", lat);
+        console.log("Long", lng);
+
+        if((lng < -180 || lng > 180) || (lat < -90 || lat > 90)){
+          showError("Invalid Position! Select any position inside the map.");
+          return;
+        }
+
+        onClick([
+          event.latlng.lat,
+          event.latlng.lng,
+        ]);
+      },
+    });
+
+    return null;
+  }
 
   return (
     <div className="relative w-full h-[600px]">
