@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import { LatLngTuple } from "leaflet";
 import { InteractionMode } from "@/types/ MarsMap";
-
+import { LayerConfig } from "../Sidebar/sidebar";
 const MarsMap = dynamic(() => import("./MarsMap"), {
   ssr: false,
   loading: () => (
@@ -26,15 +26,17 @@ export interface MapProps {
   destinationPosition:LatLngTuple | null,
   onClick:(p:LatLngTuple) => void, 
   mode: InteractionMode
+  activeLayer?: LayerConfig | null;
 }
 
-export default function MarsMapLoader({onClick, startPosition, destinationPosition, mode}: MapProps) {
+export default function MarsMapLoader({onClick, startPosition, destinationPosition, mode,activeLayer,}: MapProps) {
   return (
     <MarsMap 
       onClick={onClick} 
       startPosition={startPosition}
       destinationPosition={destinationPosition} 
       mode={mode}
+      activeLayer={activeLayer}
     />
   );
 }
