@@ -7,6 +7,7 @@ import Header from "../Header/Header"
 import RouteControls from "../RouteControls/RouteControls"
 import Sidebar from "../Sidebar/Sidebar"
 import MarsMapLoader from "../MarsMap/MarsMapLoader"
+import { MissionPlan } from "../Sidebar/MissionPlan"
 
 export default function MissionPlanner(){
     const [mode, setMode] = useState<InteractionMode>("pan")
@@ -49,7 +50,9 @@ export default function MissionPlanner(){
                     />
                 </main>
 
-                <Sidebar side="right" />
+                <MissionPlan 
+                    
+                />
             </div>
         </div>
     )
