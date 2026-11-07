@@ -7,6 +7,7 @@ import {
   MapContainer,
   TileLayer,
   Marker,
+  Polyline,
   useMap,
 } from "react-leaflet";
 import { LatLngTuple } from "leaflet";
@@ -48,8 +49,9 @@ const LAYER_TILES: Record<string, string> = {
 const LAYER_FILTERS: Record<string, string> = {
   terrain: "none",
   elevation: "saturate(1.8) contrast(1.25) hue-rotate(-15deg)",
-  "terrain-difficulty": "grayscale(0.4) contrast(1.6) brightness(0.85) sepia(0.4)",
-  ctx: "grayscale(1) contrast(1.3) brightness(1.1)",          // pure black & white
+  "terrain-difficulty":
+    "grayscale(0.4) contrast(1.6) brightness(0.85) sepia(0.4)",
+  ctx: "grayscale(1) contrast(1.3) brightness(1.1)",
   hirise: "contrast(1.7) brightness(1.15) saturate(0.5)",
   "science-targets": "none",
 };
@@ -97,6 +99,7 @@ export default function MarsMap({
   destinationPosition,
   mode,
   activeLayer,
+  hasRoute = false,
 }: MapProps) {
   const startIcon = createLucideIcon();
   const destinationIcon = createLucideIcon(false);
@@ -126,7 +129,7 @@ export default function MarsMap({
         Active Layer: {activeLayer?.name || "Terrain"}
       </div>
 
-      {/* This wrapper applies the filter correctly */}
+      {/* Filter wrapper */}
       <div
         style={{
           height: "100%",
@@ -150,11 +153,27 @@ export default function MarsMap({
             attribution="NASA / JPL / USGS"
           />
 
+          {/* Start Marker */}
           {startPosition && (
             <Marker position={startPosition} icon={startIcon} />
           )}
+
+          {/* Destination Marker */}
           {destinationPosition && (
             <Marker position={destinationPosition} icon={destinationIcon} />
+          )}
+
+          {/* Route Path (orange dashed line) */}
+          {hasRoute && startPosition && destinationPosition && (
+            <Polyline
+              positions={[startPosition, destinationPosition]}
+              pathOptions={{
+                color: "#f97316", // orange
+                weight: 4,
+                opacity: 0.9,
+                dashArray: "10, 10",
+              }}
+            />
           )}
 
           {mode !== "pan" && <MapClickHandler onClick={onClick} />}
