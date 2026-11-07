@@ -1,14 +1,31 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { LatLngTuple } from "leaflet";
 import { dataLayers, LayerConfig } from "./sidebar";
 
 interface SidebarProps {
   side?: "left" | "right";
   onLayerChange?: (layer: LayerConfig | null) => void;
+  startPosition?: LatLngTuple | null;
+  destinationPosition?: LatLngTuple | null;
 }
 
-export default function Sidebar({ side = "left", onLayerChange }: SidebarProps) {
+// Helper to format coordinates nicely
+function formatCoord(value: number, isLat: boolean) {
+  const abs = Math.abs(value).toFixed(4);
+  if (isLat) {
+    return `${abs}°${value >= 0 ? "N" : "S"}`;
+  }
+  return `${abs}°${value >= 0 ? "E" : "W"}`;
+}
+
+export default function Sidebar({
+  side = "left",
+  onLayerChange,
+  startPosition = null,
+  destinationPosition = null,
+}: SidebarProps) {
   const [activeLayerId, setActiveLayerId] = useState<string>("terrain");
 
   const getAvailableLayers = useCallback((): LayerConfig[] => {
@@ -31,9 +48,7 @@ export default function Sidebar({ side = "left", onLayerChange }: SidebarProps) 
       }
 
       setActiveLayerId(layerId);
-
       const layer = dataLayers.find((l) => l.id === layerId) ?? null;
-
       if (onLayerChange) {
         onLayerChange(layer);
       }
@@ -56,31 +71,80 @@ export default function Sidebar({ side = "left", onLayerChange }: SidebarProps) 
         </div>
 
         <div className="p-4 flex-1 flex flex-col">
+          {/* START */}
           <div className="mb-5">
             <div className="flex items-center gap-2 mb-1.5">
               <span className="w-2.5 h-2.5 rounded-full bg-green-500"></span>
               <span className="text-sm font-medium">START</span>
             </div>
-            <p className="text-xs text-slate-400 ml-4">
-              Choose Set start, then click the map.
-            </p>
+
+            {startPosition ? (
+              <div className="ml-4 text-xs space-y-0.5">
+                <div className="flex justify-between">
+                  <span className="text-slate-200 font-medium">
+                    {formatCoord(startPosition[0], true)}
+                  </span>
+                  <span className="text-slate-400">Elev.</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-200 font-medium">
+                    {formatCoord(startPosition[1], false)}
+                  </span>
+                  <span className="text-slate-400">— m</span>
+                </div>
+              </div>
+            ) : (
+              <p className="text-xs text-slate-400 ml-4">
+                Choose Set start, then click the map.
+              </p>
+            )}
           </div>
 
+          {/* DESTINATION */}
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-1.5">
               <span className="w-2.5 h-2.5 rounded-full bg-red-500"></span>
               <span className="text-sm font-medium">DESTINATION</span>
             </div>
-            <p className="text-xs text-slate-400 ml-4">
-              Choose Set destination, then click the map.
-            </p>
+
+            {destinationPosition ? (
+              <div className="ml-4 text-xs space-y-0.5">
+                <div className="flex justify-between">
+                  <span className="text-slate-200 font-medium">
+                    {formatCoord(destinationPosition[0], true)}
+                  </span>
+                  <span className="text-slate-400">Elev.</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-200 font-medium">
+                    {formatCoord(destinationPosition[1], false)}
+                  </span>
+                  <span className="text-slate-400">— m</span>
+                </div>
+              </div>
+            ) : (
+              <p className="text-xs text-slate-400 ml-4">
+                Choose Set destination, then click the map.
+              </p>
+            )}
           </div>
 
+          {/* ROUTE */}
           <div className="mt-auto">
             <h3 className="text-sm font-semibold text-slate-300 mb-2">ROUTE</h3>
-            <p className="text-xs text-slate-400">
-              Place a start and destination to plan a Marswalk.
-            </p>
+            {startPosition && destinationPosition ? (
+              <p className="text-xs text-slate-300 leading-relaxed">
+                Start and destination are set.
+                <br />
+                Ready to plan a Marswalk.
+              </p>
+            ) : (
+              <p className="text-xs text-slate-400 leading-relaxed">
+                Place a start and destination to plan a Marswalk.
+                Use Example points for a ready-made traverse
+                across the crater region.
+              </p>
+            )}
           </div>
         </div>
       </aside>
