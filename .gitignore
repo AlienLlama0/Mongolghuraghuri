@@ -49,3 +49,6 @@ wheels/
 
 # Virtual environments
 .venv
+# Mars terrain raster datasets
+*.tif
+*.tiff
