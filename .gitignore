@@ -52,3 +52,6 @@ wheels/
 # Mars terrain raster datasets
 *.tif
 *.tiff
+# Large Mars terrain datasets
+Backend/data/*.tif
+Backend/data/*.tiff
